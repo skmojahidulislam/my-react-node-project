@@ -12,7 +12,7 @@ function App() {
 
   return (
     <div>
-      <h1>🧥 Fashion BBSR All Products</h1>
+      <h1>🧥 Fashion BBSR AllS Products</h1>
       <ul>
         {products.map((item, i) => <li key={i}>{item.name}</li>)}
       </ul>
