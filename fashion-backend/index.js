@@ -10,7 +10,7 @@ app.get('/api/products', (req, res) => {
     products: [
       { name: 'Kurta' },
       { name: 'T-shirt' },
-      { name: 'Shoes' },
+      { name: 'Shoess' },
     ]
   });
 });
