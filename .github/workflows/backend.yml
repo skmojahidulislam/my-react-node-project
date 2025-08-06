@@ -1,0 +1,46 @@
+name: Deploy Backend to ECR + ECS
+
+on:
+    push:
+        paths:
+            - "fashion-backend/**"
+        branches:
+            - main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: fashion-backend
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v3
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v2
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Login to ECR
+              run: |
+                aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_URI }}
+
+            - name: Build Docker Image
+              run: docker build -t ${{ secrets.ECR_REPOSITORY }} .
+
+            - name: Tag Image
+              run: docker tag ${{ secrets.ECR_REPOSITORY }}:latest ${{ secrets.ECR_URI }}:latest
+
+            - name: Push to ECR
+              run: docker push ${{ secrets.ECR_URI }}:latest
+
+            - name: Deploy to ECS
+              run: |
+                aws ecs update-service \
+                  --cluster backend-cluster \
+                  --service backend-service \
+                  --force-new-deployment
